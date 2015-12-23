@@ -67,11 +67,6 @@ if [ -z "$NIMBUS_ADDR" ]; then
   export NIMBUS_ADDR=127.0.0.1;
 fi
 
-# Set zookeeper address to localhost by default
-if [ -z "$ZOOKEEPER_ADDR" ]; then
-  export ZOOKEEPER_ADDR=127.0.0.1;
-fi
-
 # Set storm UI port to 8080 by default
 if [ -z "$UI_PORT" ]; then
   export UI_PORT=8080;
@@ -86,7 +81,6 @@ if [ ! -z "$ZK_PORT_2181_TCP_ADDR" ]; then
   export ZOOKEEPER_ADDR=$ZK_PORT_2181_TCP_ADDR;
 fi
 
-sed -i s/%zookeeper%/$ZOOKEEPER_ADDR/g $STORM_HOME/conf/storm.yaml
 sed -i s/%nimbus%/$NIMBUS_ADDR/g $STORM_HOME/conf/storm.yaml
 sed -i s/%ui_port%/$UI_PORT/g $STORM_HOME/conf/storm.yaml
 
