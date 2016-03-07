@@ -2,7 +2,7 @@
 
 set -e
 
-usage="Usage: startup.sh [--daemon (nimbus|drpc|supervisor|ui|logviewer] --storm.options \"key1: 2\\\nkey2: 3\\\nkey3: \\\"someStringValue\\\"\" \n     where key1, key2, ..., keyN are from https://github.com/apache/storm/blob/master/conf/defaults.yaml \n and any strings in val1...N are escaped with quotes. e.g.  \"worker.childopts: \\\"-Xmx768m\\\"\" "
+usage="Usage: startup.sh [--daemon (nimbus|drpc|supervisor|ui|logviewer] --host.name.script \"some linux script here\" --storm.options \"key1: 2\\\nkey2: 3\\\nkey3: \\\"someStringValue\\\"\" \n     where key1, key2, ..., keyN are from https://github.com/apache/storm/blob/master/conf/defaults.yaml \n and any strings in val1...N are escaped with quotes. e.g.  \"worker.childopts: \\\"-Xmx768m\\\"\" and --host.name.script is something like \"curl -s http://169.254.169.254/latest/meta-data/instance-id\" to get the AWS instance-id"
 
 if [ $# -lt 1 ]; then
  echo -e $usage >&2;
@@ -22,11 +22,13 @@ cp $STORM_HOME/conf/storm.yaml.template $STORM_HOME/conf/storm.yaml
 anyDaemonsSpecified=0
 processingDaemons=0
 processingStormOptions=0
+processingHostNameCalculation=0
 
 while [[ $# > 0 ]] ; do
 	
 	if [ "$1" == "--daemon" ]; then
 		processingStormOptions=0
+		processingHostNameCalculation=0
 		processingDaemons=1
 		shift
 		continue
@@ -35,6 +37,15 @@ while [[ $# > 0 ]] ; do
 	if [ "$1" == "--storm.options" ]; then
 		processingStormOptions=1
 		processingDaemons=0
+		processingHostNameCalculation=0
+		shift
+		continue
+	fi	
+	
+	if [ "$1" == "--host.name.script" ]; then
+		processingStormOptions=0
+		processingDaemons=0
+		processingHostNameCalculation=1
 		shift
 		continue
 	fi	
@@ -42,6 +53,13 @@ while [[ $# > 0 ]] ; do
 	if [ $processingDaemons -eq 1 ] ; then
 		anyDaemonsSpecified=1
 		create_supervisor_conf $1
+	fi
+	
+	if [ $processingHostNameCalculation -eq 1 ] ; then
+		echo "HostNameCalculationScript:"
+		echo $1
+		 
+		echo -e storm.local.hostname: $1 >> $STORM_HOME/conf/storm.yaml
 	fi
 	
 	if [ $processingStormOptions -eq 1 ] ; then
