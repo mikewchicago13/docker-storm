@@ -10,7 +10,7 @@ RUN apt-get update
 RUN apt-get upgrade -y
 
 # Install Oracle JDK 8 and others useful packages
-RUN apt-get install -y python-software-properties software-properties-common
+RUN apt-get install -y python-software-properties software-properties-common curl
 RUN add-apt-repository -y ppa:webupd8team/java
 RUN apt-get update
 
