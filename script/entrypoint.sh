@@ -56,10 +56,10 @@ while [[ $# > 0 ]] ; do
 	fi
 	
 	if [ $processingHostNameCalculation -eq 1 ] ; then
-		echo "HostNameCalculationScript:"
-		echo $1
-		 
-		echo -e storm.local.hostname: $1 >> $STORM_HOME/conf/storm.yaml
+		echo StormLocalHostnameCalculationScript: $1
+		stormLocalHostName=$(eval $1)
+		echo -e storm.local.hostname: $stormLocalHostName >> $STORM_HOME/conf/storm.yaml		
+		echo UsedScriptToCalculatedStormLocalHostnameAs $stormLocalHostName
 	fi
 	
 	if [ $processingStormOptions -eq 1 ] ; then
